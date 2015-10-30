@@ -52,9 +52,166 @@
 
 http://www.yiibai.com/jdbc/jdbc-insert-records.html
 
-## Select
+## 执行
 
 * boolean execute(String SQL) : 返回一个布尔值true，如果ResultSet对象可以被检索，否则返回false。使用这个方法来执行SQL DDL语句，或当需要使用真正的动态SQL。
 
 * int executeUpdate(String SQL) : 返回受影响的SQL语句执行的行数。使用此方法来执行，而希望得到一些受影响的行的SQL语句 - 例如，INSERT，UPDATE或DELETE语句。
 * ResultSet executeQuery(String SQL) : 返回ResultSet对象。当希望得到一个结果集使用此方法，就像使用一个SELECT语句。
+
+## Select之后的结果
+
+     Statement stmt = conn.createStatement();
+     ResultSet rs = stmt.executeQuery( "SELECT * FROM MyTable" );
+     while ( rs.next() ) {
+         int numColumns = rs.getMetaData().getColumnCount();
+         for ( int i = 1 ; i <= numColumns ; i++ ) {
+            // 与大部分Java API中下标的使用方法不同，字段的下标从1开始
+            // 当然，还有其他很多的方式（ResultSet.getXXX()）获取数据
+            System.out.println( "COLUMN " + i + " = " + rs.getObject(i) );
+         }
+     }
+     rs.close();
+     stmt.close();
+     
+## java类型和数据库类型的对应表
+
+<table border="1" cellpadding="2" cellspacing="0" width="50%">
+<caption>從SQL到Java類型對映的JDBC規範</caption>
+<tr bgcolor="#EFEFEF">
+<th width="50%">SQL類型</th>
+<th width="50%">Java類型</th>
+</tr>
+<tr>
+<td>CHAR</td>
+<td>java.lang.String</td>
+</tr>
+<tr>
+<td>VARCHAR</td>
+<td>java.lang.String</td>
+</tr>
+<tr>
+<td>LONGVARCHAR</td>
+<td>java.lang.String</td>
+</tr>
+<tr>
+<td>NUMERIC</td>
+<td>java.math.BigDecimal</td>
+</tr>
+<tr>
+<td>DECIMAL</td>
+<td>java.math.BigDecimal</td>
+</tr>
+<tr>
+<td>BIT</td>
+<td>boolean</td>
+</tr>
+<tr>
+<td>TINYINT</td>
+<td>byte</td>
+</tr>
+<tr>
+<td>SMALLINT</td>
+<td>short</td>
+</tr>
+<tr>
+<td>INTEGER</td>
+<td>int</td>
+</tr>
+<tr>
+<td>BIGINT</td>
+<td>long</td>
+</tr>
+<tr>
+<td>REAL</td>
+<td>float</td>
+</tr>
+<tr>
+<td>FLOAT</td>
+<td>double</td>
+</tr>
+<tr>
+<td>DOUBLE</td>
+<td>double</td>
+</tr>
+<tr>
+<td>BINARY</td>
+<td>byte[]</td>
+</tr>
+<tr>
+<td>VARBINARY</td>
+<td>byte[]</td>
+</tr>
+<tr>
+<td>LONGVARBINARY</td>
+<td>byte[]</td>
+</tr>
+<tr>
+<td>DATE</td>
+<td>java.sql.Date</td>
+</tr>
+<tr>
+<td>TIME</td>
+<td>java.sql.Time</td>
+</tr>
+<tr>
+<td>TIMESTAMP</td>
+<td>java.sql.Timestamp</td>
+</tr>
+<tr>
+<td>BLOB</td>
+<td>java.sql.Blob</td>
+</tr>
+<tr>
+<td>CLOB</td>
+<td>java.sql.Clob</td>
+</tr>
+<tr>
+<td>Array</td>
+<td>java.sql.Array</td>
+</tr>
+<tr>
+<td>REF</td>
+<td>java.sql.Ref</td>
+</tr>
+<tr>
+<td>Struct</td>
+<td>java.sql.Struct</td>
+</tr>
+</table>
+
+## PreparedStatement
+
+    PreparedStatement ps = null;
+     ResultSet rs = null;
+     try {
+     ps = conn.prepareStatement( "SELECT i.*, j.* FROM Omega i, Zappa j
+          WHERE i = ? AND j = ?" );
+     // 使用问号作为参数的标示
+     
+     // 进行参数设置
+     // 与大部分Java API中下标的使用方法不同，字段的下标从1开始，1代表第一个问号
+     // 当然，还有其他很多针对不同类型的类似的PreparedStatement.setXXX()方法
+     ps.setString(1, "Poor Yorick");
+     ps.setInt(2, 8008);
+     
+     // 结果集
+     rs = ps.executeQuery();
+     while ( rs.next() ) {
+         int numColumns = rs.getMetaData().getColumnCount();
+         for ( int i = 1 ; i <= numColumns ; i++ ) {
+            // 与大部分Java API中下标的使用方法不同，字段的下标从1开始
+            // 当然，还有其他很多的方式（ResultSet.getXXX()）获取数据
+            System.out.println( "COLUMN " + i + " = " + rs.getObject(i) );
+         }
+     
+     }
+     catch (SQLException e) {
+      // 异常处理
+     }
+     finally { // 使用finally进行资源释放
+      try {
+       rs.close();
+       ps.close();
+      } catch( SQLException e){} // 异常处理：忽略close()时的错误
+     }
