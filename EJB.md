@@ -19,13 +19,13 @@ JavaBean是特殊的Java类，使用J ava语言书写，并且遵守JavaBeans AP
 ### JavaBeans程序示例
 这是StudentBean.java文件：
 
+
       package com.tutorialspoint;
       public class StudentsBean implements java.io.Serializable
       {
        private String firstName = null;
        private String lastName = null;
        private int age = 0;
-
        public StudentsBean() {
        }
        public String getFirstName(){
@@ -43,11 +43,11 @@ JavaBean是特殊的Java类，使用J ava语言书写，并且遵守JavaBeans AP
        public void setLastName(String lastName){
           this.lastName = lastName;
        }
+       
        public void setAge(Integer age){
           this.age = age;
        }
       }
-
 
 ## 访问JavaBeans
 <jsp:useBean>标签可以在JSP中声明一个JavaBean，然后使用。声明后，JavaBean对象就成了脚本变量，</br>
